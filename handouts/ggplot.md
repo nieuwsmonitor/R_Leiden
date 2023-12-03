@@ -40,6 +40,8 @@ visualization library. It can be used to make almost all kinds of
 graphs, from simple line and scatter plots to colorful annotated bubble
 plots.
 
+If you prefer to follow the course in an interactive way you can use the [interactive version](https://vanatteveldt.shinyapps.io/ggplot/) of this tutorial.
+
 For an an overview of possibilities and more explanation, you can check
 out the free online resources below:
 

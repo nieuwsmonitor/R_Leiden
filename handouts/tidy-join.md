@@ -43,6 +43,8 @@ In such cases, you need to **join** two different data frames, adding
 the information about a *specific case or group* from one frame to the
 information about the *same group* from the other frame.
 
+If you prefer to follow the course in an interactive way you can use the [interactive version](https://vanatteveldt.shinyapps.io/tidy-join/) of this tutorial.
+
 ### Joining data
 
 To show how this works, let’s assume we are interested in a relation

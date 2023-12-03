@@ -41,6 +41,8 @@ packages, which contains most of the tools we’re using below, but it
 also contains functions for reading, analysing and visualising data that
 will be explained later.
 
+If you prefer to follow the course in an interactive way you can use the [interactive version](https://vanatteveldt.shinyapps.io/tidy-1-select/) of this tutorial.
+
 ### Installing tidyverse
 
 As before, `install.packages()` is used to download and install the

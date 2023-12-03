@@ -43,6 +43,8 @@ li pre {border: 0px; padding: 0; margin:0}
 This tutorial discusses how to *reshape* data, particularly from long to
 wide format and vice versa.
 
+If you prefer to follow the course in an interactive way you can use the [interactive version](https://vanatteveldt.shinyapps.io/tidy-pivot/) of this tutorial.
+
 You can check out [Section 6.5 of Computational Analysis of
 Communication](https://cssbook.net/content/chapter06.html#sec-pivot)
 and/or [Chapter 12 of the R4DS

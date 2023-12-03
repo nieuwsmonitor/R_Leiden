@@ -26,6 +26,8 @@ Fuctions, mapping and scraping multiple pages
 </style>
 
 ## Introduction
+If you want to follow the tutorial online you can have a look at the [online version of this tutorial](https://vanatteveldt.shinyapps.io/functions/)
+
 
 All the time that you have been using R, you have been using
 **functions**. For example, consider the call to sort a data frame

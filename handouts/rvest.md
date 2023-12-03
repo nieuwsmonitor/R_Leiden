@@ -43,6 +43,8 @@ of tea, check it out
 slightly different in places, but the important parts are still the
 same.
 
+If you prefer to follow the course in an interactive way you can use the [interactive version](https://vanatteveldt.shinyapps.io/rvest/) of this tutorial.
+
 ### What is web scraping and why learn it?
 
 The internet is a veritable data gold mine, and being able to mine this

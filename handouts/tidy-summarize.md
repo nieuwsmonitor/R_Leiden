@@ -47,6 +47,8 @@ This is called aggregation (or summarization) and in tidyverse uses the
 This tutorial will explain how these functions work and how they can be
 used for data summarization.
 
+If you prefer to follow the course in an interactive way you can use the [interactive version](https://vanatteveldt.shinyapps.io/tidy-summarize/) of this tutorial.
+
 ### The role of grouping
 
 When we summarize data, we generally want to summarize some value per
