@@ -1,5 +1,7 @@
 ---
 title: "Tidyverse I: tidy data"
+author: "Wouter van Atteveldt & Nel Ruigrok"
+date: "November 2023"
 output:
   github_document:
     toc: yes
@@ -28,6 +30,8 @@ In this part of the tutorial, we’ll focus on working with data using the
 packages, which contains most of the tools we’re using below, but it
 also contains functions for reading, analysing and visualising data that
 will be explained later.
+
+If you prefer to follow the course in an interactive way you can use the [interactive version](https://vanatteveldt.shinyapps.io/tidy-1-select/) of this tutorial.
 
 ### Installing tidyverse {data-allow-skip=TRUE}
 
@@ -238,7 +242,7 @@ data2 <- some_function(data) # <-- overwrite the old object
 
 Using the gun polls data from above, 
 rename the `Republican Support` and `Democratic Support` columns to `rep_support` and `dem_support`,
-and select only the Question, Pollster, and republicat/democratic support columns. 
+and select only the Question, Pollster, and republican/democratic support columns. 
 Assign the result to the `gunpolls` object
 
 

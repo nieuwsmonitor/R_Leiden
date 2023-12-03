@@ -43,6 +43,7 @@ v3 = 1:10               ## a numeric vector of length 10 with the values 1 to 10
 
 # WE start with the data of the Impact lab.
 # We need to activate some packages. 
+
 library(tidyverse)
 library(sf)
 
@@ -100,6 +101,7 @@ hist(d$age, breaks = 100)
 
 
 #### Het zou leuk zijn om eens te kijken waar al die respondenten wonen!
+
 
 table(d$residence, useNA = 'always')
 hist(d$residence, breaks=10)
