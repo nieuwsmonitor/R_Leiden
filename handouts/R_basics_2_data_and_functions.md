@@ -1,7 +1,7 @@
 R basics: data and functions
 ================
-Kasper Welbers & Wouter van Atteveldt
-2018-09
+Kasper Welbers, Wouter van Atteveldt & Nel Ruigrok
+November 2023
 
 - [This tutorial](#this-tutorial)
 - [Data types](#data-types)

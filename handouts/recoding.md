@@ -26,6 +26,8 @@ coded the wrong way, it might contain typos or other mistakes, etc.
 In this tutorial, you will learn about a number of common recoding steps
 that you can use to solve such issues.
 
+If you want to do this online you can have a look at the [online version of this tutorial](https://vanatteveldt.shinyapps.io/recoding/)
+
 ## Recoding values
 
 Often, our data is categorized or coded differently from how we would
