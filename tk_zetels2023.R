@@ -10,9 +10,6 @@ shapes4 = shapes3|>
   left_join(corop)
 
 
-total_votes= 10475139
-votes_per_seat=total_votes/150
-
 votes = read_csv("data/tk2023.csv")|>
   rename(gemeentenaam=gemeente)
 
@@ -43,7 +40,7 @@ votes_per_gemeente|>as_tibble()|>
   group_by(partij)|>
   summarise(ninwoners=sum(aantal_inwoners))|>
   mutate(zetels=round(ninwoners/sum(ninwoners)*150))
-
+  
 ggplot(votes_per_gemeente) +
   geom_sf(aes(geometry = geom, fill=partij)) +
   ggtitle("Winner takes all per gemeente") +

@@ -3,9 +3,18 @@ library(ggthemes)
 library(tidyverse)
 library(viridis)
 library(sjPlot)
+library(ggcorrplot)
 
 
-#we bespreken summarize, recoding, select, tidy join en pivot
+####INSTELLINGEN 
+getOption("tibble.view_max")
+options(pillar.print_max=10,
+        pillar.print_min=6)
+
+
+
+
+#we bespreken summarize, recoding, select, en pivot
 #rename en recode
 d = read_csv("data/impact_lab.csv")|>as_tibble()|>
   rename(age=DEMOGR_1,
@@ -78,10 +87,10 @@ ggplot(data=projects, aes(x=reorder(PROJECT, -n), y=n, fill=PROJECT)) +
   ggtitle("Aaantal respondenten per project")+
   theme(legend.position = 'none')
 
+#UITDAGING
 #Kun je Per groep, kids en volwassenen, een pie chart maken van het aantal respondenten per project?
 
-###Leeftijd per groep
-
+###Hoeveel mensen per leeftijdsgroep kids versus volwassenen?
 describe(d$age)
 
 leeftijd= d|>
@@ -103,7 +112,7 @@ ggplot(leeftijd, aes(x = "", y = perc, fill = gender)) +
   facet_grid(~leeftijdgroep)
 
 
-
+#alleen volwassenen
 leeftijd1 = d|>
   filter(age>18)
 
@@ -139,8 +148,10 @@ cor(emoties)
 emoties = na.omit(emoties)
 
 cor(emoties)
+class(emoties)
 
 cor_emoties= cor(emoties)
+class(cor_emoties)
 
 cor.plot(emoties, numbers=T, upper=FALSE, main = "Pearson Correlation", show.legend = FALSE)
 
@@ -150,9 +161,13 @@ ggcorrplot(cor_emoties,
            lab=TRUE)
 
 
-
 emoties = d|>
-  select(PROJECT, age, gender, education, happy:interested)|>
+  select(PROJECT, age, gender, education, happy:interested)
+
+emoties
+
+
+emoties = emoties|>
   pivot_longer(happy:interested, names_to = 'emoties', values_drop_na=TRUE)
 
 
@@ -216,6 +231,7 @@ happy2 = emoties|>
   
 t.test(value ~ gender, data = happy2)
 
+#UITDAGING:
 #Kun je op basis van de factoranalyse die is gedaan berekenen of er een verschil is tussen gender 
 # en wetenschapskapitaal, plezierbeleving, intensiteit en effect? 
 # zie voor indeling https://impactlab.sites.uu.nl/wp-content/uploads/sites/764/2023/05/Statistische-analyses.pdf
@@ -223,6 +239,11 @@ t.test(value ~ gender, data = happy2)
 ####LIKERT SCALES
 
 head(d)
+
+l = d|>
+  select(PROJECT, age, gender,literacy:peers)
+
+table(l$literacy, useNA = 'always')
 
 likert_recode <- function(x) {
   y <- case_when(is.na(x) ~ NA,
@@ -255,14 +276,6 @@ likert_recode <- function(x, levels=c("Strongly disagree", "Disagree", "Neutral"
 
 table(d$literacy)
 
-l = d|>
-  select(literacy:peers)|>
-  mutate(across(literacy:peers, ~ likert_recode(.x)))|> #mutate meerdere kolommen
-  filter(if_all(literacy:peers, ~ !is.na(.)))|>
-  as.data.frame()
-
-table(l$literacy)
-
 
 l2 = d|>
   select(PROJECT, gender, literacy:peers)|>
@@ -280,32 +293,17 @@ l2 = d|>
   
 
 
-ggplot(l2) +
-  geom_col(aes(y = label, x = perc, fill = value), position = "stack") +
-  geom_text(aes(y = label, x = perc, label = round(perc, 1)), 
-            position = position_stack(vjust = 1, reverse = FALSE), color = "black", size = 3) +
-  ggtitle("Wetenschapskapitaal") +
-  ylab("Percentage") +
-  xlab("Wetenschapskapitaal") +
-  scale_fill_brewer(palette = "PRGn", breaks = rev()) +  # Add brackets to rev()
-  theme(legend.position = "bottom")
 
 ggplot(l2, aes(y = label, x=perc, fill=value, label=round(perc, 1)))+
   geom_col(position="stack")+
   geom_text(data = filter(l2, perc>5), aes(color=value),position=position_stack(vjust=.5, reverse = FALSE), size=3) +
   ggtitle("Wetenschapskapitaal")+
-  ylab("Percentage")+
-  xlab("Wetenschapskapitaal ")+
+  ylab("")+
+  xlab("Percentage ")+
   scale_color_manual(values = c("Agree"='black', "Neutral"='black', "Disagree"='black'), na.value="white")+
   scale_fill_brewer(palette="PRGn", breaks=rev)+
   theme(legend.position="bottom")
 
 
 
-
-
-####INSTELLINGEN 
-getOption("tibble.view_max")
-options(pillar.print_max=10,
-        pillar.print_min=6)
 
