@@ -292,15 +292,52 @@ l2 = d|>
            "peers" ~ "Ik spreek regelmatig over wetenschap met anderen.")) 
   
 
-
-
 ggplot(l2, aes(y = label, x=perc, fill=value, label=round(perc, 1)))+
   geom_col(position="stack")+
-  geom_text(data = filter(l2, perc>5), aes(color=value),position=position_stack(vjust=.5, reverse = FALSE), size=3) +
+  geom_text(data = filter(l2, perc>5),aes(color=value), position=position_stack(vjust=.5, reverse = FALSE), size=3) +
   ggtitle("Wetenschapskapitaal")+
-  ylab("")+
-  xlab("Percentage ")+
-  scale_color_manual(values = c("Agree"='black', "Neutral"='black', "Disagree"='black'), na.value="white")+
+
+  ylab("Percentage")+
+  xlab("Wetenschapskapitaal ")+
+  scale_color_manual(values = c("Agree"='black', "Neutral"='black', "Disagree"='black'), na.value="white", guide="none")+
+  scale_fill_brewer(palette="PRGn", breaks=rev)+
+  theme(legend.position="bottom")
+
+
+
+###EIGEN VARIABELE NAMEN
+#STEL de vragen gingen over iets heel anders, namelijk een schaal verveeld tot ontspanne, ontevreden tot tevreden, ongelukkig tot gelukkig en hopeloos tot hoopvol
+#Als je dan de waarden op twee assen mee wilt geven dan kan dat op de volgende manier. 
+#hier maak je eerst de twee labels
+
+labels1 <- c("Verveeld", "Ontevreden","Ongelukkig", "Hopeloos")
+labels2 <- c("Ontspannen","Tevreden","Gelukkig","Hoopvol")
+
+# We maken een nieuwe klasse die erft van de normale guide_axis en die een transformatie functie opslaat
+# En vervolgens overschrijven we de guide_train functie om de labels te transformeren met de opgeslagen functie
+# Zie http://adv-r.had.co.nz/S3.html voor meer info over wat in R doorgaat voor object orientatie
+guide_axis_label_trans <- function(transform_function, ...) {
+  axis_guide <- guide_axis(...)
+  axis_guide$transform_function <- rlang::as_function(transform_function)
+  class(axis_guide) <- c("guide_axis_trans", class(axis_guide))
+  axis_guide
+}
+guide_train.guide_axis_trans <- function(x, ...) {
+  guide <- NextMethod()
+  guide$key$.label <- x$transform_function(guide$key$.label)
+  guide
+}
+
+l2 |>
+  ggplot(aes(y = label, x=perc, fill=value, label=round(perc, 1)))+
+  geom_col(position="stack")+
+  geom_text(data = filter(l2, perc>5),aes(color=value), position=position_stack(vjust=.5, reverse = FALSE), size=3) +
+  ggtitle("Wetenschapskapitaal")+
+  ylab("Percentage")+
+  xlab("Wetenschapskapitaal ")+
+  scale_y_discrete(labels = labels1)+
+  guides(y.sec = guide_axis_label_trans(~labels2[match(.x, labels1)])) +
+  scale_color_manual(values = c("Agree"='black', "Neutral"='black', "Disagree"='black'), na.value="white", guide="none")+
   scale_fill_brewer(palette="PRGn", breaks=rev)+
   theme(legend.position="bottom")
 
