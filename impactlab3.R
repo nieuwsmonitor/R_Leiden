@@ -99,7 +99,12 @@ ggplot(data=projects, aes(x=reorder(PROJECT, -n), y=n, fill=PROJECT)) +
 
 
 
-#UITDAGING:
+#UITDAGING: We willen een onderscheid maken tussen de projecten voor volwassenen en kinderen.
+#we willen twee bestanden, een voor de projecten voor volwassenen en een voor de projecten voor kinderen
+#We willen dan eigenlijk meer dingen weten
+#HET aantal deelnemers per project, maar ook de gemiddelde leeftijd per project
+#VAn de gemiddelde leeftijd willen we dan ook zo'n figuur
+#En gewoon omdat het kan, een pie chart van het percentage kids danwel volwassenen die per project meedoen
 
 ###Hoeveel mensen per leeftijdsgroep kids versus volwassenen?
 
@@ -122,6 +127,7 @@ ggplot(leeftijd, aes(x = "", y = perc, fill = gender)) +
   facet_grid(~leeftijdgroep)
 
 
+
 #alleen volwassenen
 leeftijd1 = d|>
   filter(age>18)
@@ -135,11 +141,17 @@ boxplot(age~gender,
         border="brown"
 )
 
+##UITDAGING: Kun je deze boxplot ook maken voor kinderen en dan alleen jongens en meisjes en dan ook een mooiere boxplot, an violin bv
+
+
+
 ###significante verschillen tussen gender?
 
 res.aov <- aov(age ~ gender, data = leeftijd1)
 summary(res.aov)
 TukeyHSD(res.aov)
+
+
 
 leeftijd2 = leeftijd1|>
   filter(gender != "overig")
@@ -147,11 +159,10 @@ leeftijd2 = leeftijd1|>
 t.test(age ~ gender, data=leeftijd2)
 
 
-
 ###EMOTIES
 
 emoties = d|>
-  select(happy:interested)
+  dplyr::select(happy:interested)
 
 cor(emoties)
 
@@ -172,7 +183,7 @@ ggcorrplot(cor_emoties,
 
 
 emoties = d|>
-  select(PROJECT, age, gender, education, happy:interested)
+  dplyr::select(PROJECT, age, gender, education, happy:interested)
 
 emoties
 
