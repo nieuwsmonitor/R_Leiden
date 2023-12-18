@@ -10,6 +10,7 @@ mydata = read_csv("data/aletta.csv")|>
   mutate(across(everything(), ~replace_na(.x, 0)))
 
 
+
 #DESCRIPTIVES
 
 #### verschillen tussen groepen

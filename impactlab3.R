@@ -128,6 +128,8 @@ ggplot(leeftijd, aes(x = "", y = perc, fill = gender)) +
 
 
 
+
+
 #alleen volwassenen
 leeftijd1 = d|>
   filter(age>18)
@@ -145,55 +147,44 @@ boxplot(age~gender,
 
 
 
-###significante verschillen tussen gender?
-
-res.aov <- aov(age ~ gender, data = leeftijd1)
-summary(res.aov)
-TukeyHSD(res.aov)
-
-
-
-leeftijd2 = leeftijd1|>
-  filter(gender != "overig")
-
-t.test(age ~ gender, data=leeftijd2)
-
-
 ###EMOTIES
-
+#hieronder selecteren we alleen even de emoties en die noemen we dan ook zo
 emoties = d|>
   dplyr::select(happy:interested)
 
-cor(emoties)
-
+#correlaties
+cor(emoties) #je ziet allemaal NAs die moeten eruit
 emoties = na.omit(emoties)
 
+#nu zonder na's
 cor(emoties)
-class(emoties)
+class(emoties)#ff kijken wat voor type data het is, het is een dataframe
 
-cor_emoties= cor(emoties)
-class(cor_emoties)
+cor_emoties= cor(emoties) #als je het nu wegschrijft wordt het een matrix
+class(cor_emoties) #die zie je hier
 
-cor.plot(emoties, numbers=T, upper=FALSE, main = "Pearson Correlation", show.legend = FALSE)
+cor.plot(emoties, numbers=T, upper=FALSE, main = "Pearson Correlation", show.legend = FALSE) #hier kun je een overzicht mee maken
 
+#correlaties kunnen uiteraard ook met ggplot
 ggcorrplot(cor_emoties,
            type = 'lower',
            hc.order =TRUE,
            lab=TRUE)
 
 
+#Hieronder selecteren we even opnieuw en nog wat meta gegevens van respondenten erbij
 emoties = d|>
   dplyr::select(PROJECT, age, gender, education, happy:interested)
 
 emoties
 
-
+#Hieroder maken er we er een lang bestand van
 emoties = emoties|>
   pivot_longer(happy:interested, names_to = 'emoties', values_drop_na=TRUE)
 
 
 emoties
-
+#Op deze manier kunnen we er een boxplot van maken voor alle emoties
 boxplot(value~emoties,
         data = emoties,
         main="Boxplots voor emoties",
@@ -231,6 +222,9 @@ emoties2= emoties|>
 
 emoties2
 
+#Uitdaging: zijn er eigenlijk verschillen in emoties tussen kinderen en volwassenen?
+#zijn er (groepen) projecten die verschillende emoties geven
+
 ####Verschil in emoties
 
 res.aov <- aov(value ~ emoties, data = emoties)
@@ -252,10 +246,7 @@ happy2 = emoties|>
   
 t.test(value ~ gender, data = happy2)
 
-#UITDAGING:
-#Kun je op basis van de factoranalyse die is gedaan berekenen of er een verschil is tussen gender 
-# en wetenschapskapitaal, plezierbeleving, intensiteit en effect? 
-# zie voor indeling https://impactlab.sites.uu.nl/wp-content/uploads/sites/764/2023/05/Statistische-analyses.pdf
+#UITDAGING: Zijn er verschillen in emoties tussen kids en volwassenen?
 
 ####LIKERT SCALES
 
@@ -354,8 +345,8 @@ l2 |>
   geom_col(position="stack")+
   geom_text(data = filter(l2, perc>5),aes(color=value), position=position_stack(vjust=.5, reverse = FALSE), size=3) +
   ggtitle("Wetenschapskapitaal")+
-  ylab("Percentage")+
-  xlab("Wetenschapskapitaal ")+
+  ylab("")+
+  xlab(" ")+
   scale_y_discrete(labels = labels1)+
   guides(y.sec = guide_axis_label_trans(~labels2[match(.x, labels1)])) +
   scale_color_manual(values = c("Agree"='black', "Neutral"='black', "Disagree"='black'), na.value="white", guide="none")+
