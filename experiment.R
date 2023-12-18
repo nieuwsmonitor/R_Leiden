@@ -1,19 +1,25 @@
+
 library(tidyverse)
 library(psych)
 library(ggthemes)
 library(sjPlot)
 library(ggcorrplot)
 
-
 mydata = read_csv("data/aletta.csv")|>
   dplyr::filter(Duration__in_seconds_ > 90)|>
   mutate(across(everything(), ~replace_na(.x, 0)))
+
+mydata = read_csv("data/aletta.csv")|>
+  dplyr::filter(Duration__in_seconds_ > 90)|>
+  mutate(across(where(is.numeric), 
+                ~replace_na(.x, 0)))
 
 
 
 #DESCRIPTIVES
 
 #### verschillen tussen groepen
+colnames(mydata)
 
 mydata|>
   select(FL_32_DO_Control.group:FL_32_DO_Enigmaticexplanationbalanced, Duration__in_seconds_, weight_trimmed_0.980)|>
@@ -26,16 +32,30 @@ mydata|>
             median_duration=median(duration),
             sd_duration=sd(duration))
 
+#WAT IS PER LEEFTIJDSGROEP DE GEMIDDELDE LEEFTIJD ALS JE WEEGT PER PERSOON?
 
 mydata|>
+  select(age_4_rec, age_cont, weight_trimmed_0.980)|>
   mutate(age_4_rec = case_when(age_4_rec==1 ~ "18-34 year",
                                age_4_rec==2 ~ "35-59 year",
                                age_4_rec==3 ~ "50-64 year",
                                T ~ "65+"))|>
   group_by(age_4_rec)|>
   summarise(aantal = n(),
-            mean_age=mean(age_cont),
-            median_age=median(age_cont))
+            gewogen_n=sum(weight_trimmed_0.980),
+            gem_leeftijd = sum(age_cont*weight_trimmed_0.980)/gewogen_n)
+
+
+mydata|>
+  select(age_4_rec, age_cont, weight_trimmed_0.980)|>
+  mutate(age_4_rec = case_when(age_4_rec==1 ~ "18-34 year",
+                               age_4_rec==2 ~ "35-59 year",
+                               age_4_rec==3 ~ "50-64 year",
+                               T ~ "65+"))|>
+  group_by(age_4_rec)|>
+  summarise(aantal = n(),
+            gem_leeftijd = mean(age_cont))
+
 
 
 
@@ -67,10 +87,10 @@ mydata2 = mydata|>
  
 frames = mydata2|>
   select(ResponseId, weight=weight_trimmed_0.980, Spooky, Explanation, RiskB, BenefitB)|>
-  pivot_longer(Spooky:BenefitB, names_to = 'frame')|>
+  pivot_longer(Spooky:BenefitB, names_to = 'frame', values_to = "aantal")|>
   group_by(frame)|>
-  summarise(n = sum(value), 
-            nweight=sum(value*weight))
+  summarise(n = sum(aantal), 
+            nweight=sum(aantal*weight))
   
 frames
 
@@ -101,6 +121,7 @@ effect|>
 
 ###BOXPLOT PER EFFECT
 library(viridis)
+library(tidyverse)
 
 effect_long = mydata2|>
   dplyr::select(ResponseId, edu_clean,sex_rec, age_4_rec, weight=weight_trimmed_0.980, Info_sum:PK_sum)|>
@@ -109,7 +130,7 @@ effect_long = mydata2|>
          `General Interest`=GI_sum,
          `Internal Efficiacy`= IE_sum,
          `Perceived Knowledge`= PK_sum)|>
-  pivot_longer(`Information Seeking`:`Perceived Knowledge`, names_to = "Effects")
+ pivot_longer(`Information Seeking`:`Perceived Knowledge`, names_to = "Effects")
 
 
 
@@ -129,7 +150,7 @@ effect_long %>%
 ###INTERNAL CONSISTENCY
 library(ltm)
 
-mydata|>
+mydata2|>
   dplyr::select(starts_with("Info"))|>
   cronbach.alpha()
 
@@ -170,15 +191,19 @@ mydata2|>
   filter(nframes==1)|>
   group_by(Frames)|>
   ggplot(aes(x=Effects, y=neffects2, fill=Effects)) +
-  geom_violin() +
+  geom_jitter(color="black", size=0.04, alpha=0.9) +
+  geom_boxplot()+
   scale_fill_viridis(discrete = TRUE, alpha=0.6) +
   theme(
     legend.position="none",
     plot.title = element_text(size=11)
   ) +
-  ggtitle("Violin box plots per frame") +
+  ggtitle("Jitter box plots per frame") +
   xlab("")+
   facet_wrap(~ Frames )
+
+
+
 
 
 # weighted models
@@ -188,28 +213,35 @@ frames = mydata2|>
 # Information Seeking
 mywmodel = lm(Info_sum ~ RiskB * BenefitB + Spooky  + Explanation, data = frames, weights = weight)
 summary(mywmodel)
+
 library(sjPlot)
 tab_model(mywmodel)
 
 sjPlot::plot_model(mywmodel)
 sjPlot::plot_model(mywmodel, type="pred", terms=c("RiskB", "BenefitB"))
 
-tab_model(mywmodel, mywmodel2)
-sjPlot::plot_model(mywmodel2)
-sjPlot::plot_model(mywmodel2, type="pred", terms=c("RiskB", "BenefitB"))
 # Internal Efficacy 
 mywmodel2 = lm(IE_sum ~ RiskB * BenefitB + Spooky  + Explanation, data = frames, weights = weight)
 summary(mywmodel2)
+
+tab_model(mywmodel, mywmodel2, mywmodel3,mywmodel4)
+sjPlot::plot_model(mywmodel2)
+sjPlot::plot_model(mywmodel2, type="pred", terms=c("RiskB", "BenefitB"))
+
+
+
 # General Interest
 mywmodel3 = lm(GI_sum ~ RiskB * BenefitB + Spooky  + Explanation, data = frames, weights = weight)
 summary(mywmodel3)
 # Perceived Knowledge
-mywmodel4 = lm(PK_sum ~ RiskB * BenefitB + Spooky  + Explanation, data = mynicedata, weights = weight)
+mywmodel4 = lm(PK_sum ~ RiskB * BenefitB + Spooky  + Explanation, data = frames, weights = weight)
 summary(mywmodel4)
 
 
 ######
 library(ggthemes)
+
+#Explanation, BenefitB en RiskB
 
 spooky=mydata2|>
   filter(Spooky==1)|>
@@ -231,13 +263,13 @@ spooky
 
 ggplot(spooky, aes(x = age_4_rec, y=m, fill=Effects, label=m))+
   geom_col(position="dodge")+
-  geom_text(aes(label = round(m,1)), position= position_dodge(.9),size=3.5, vjust = 1.5, colour = "white")+
+  geom_text(aes(label = round(m,1)), position= position_dodge(.9),size=3.5, vjust = 4, colour = "white")+
   ggtitle("Effects for respondents confronted with enigmatic framing")+
   ylab("Mean score")+
   xlab("")+
   scale_fill_brewer(palette="PRGn")+
   theme(legend.position="bottom")+
-  theme_economist_white()
+  theme_economist()
 
   
 

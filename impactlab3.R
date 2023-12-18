@@ -340,6 +340,12 @@ guide_train.guide_axis_trans <- function(x, ...) {
   guide
 }
 
+
+library(ggh4x)
+
+labels1 <- c("Verveeld", "Ontevreden","Ongelukkig", "Hopeloos")
+labels2 <- c("Ontspannen","Tevreden","Gelukkig","Hoopvol")
+
 l2 |>
   ggplot(aes(y = label, x=perc, fill=value, label=round(perc, 1)))+
   geom_col(position="stack")+
@@ -355,4 +361,16 @@ l2 |>
 
 
 
+l2 |>
+  ggplot(aes(y = variable, x=perc, fill=value, label=round(perc, 1)))+
+  geom_col(position=position_stack(reverse=TRUE))+
+  geom_text(data = filter(l2, perc>5),aes(color=value), position=position_stack(vjust=.5, reverse = TRUE), size=3) +
+  ggtitle("Emotionele herinnering", subtitle="Hoe voel je je nadat je iets hebt gedaan met [PROJECT]?")+
+  ylab("")+
+  xlab("Percentage")+
+  scale_y_discrete(labels = labels1)+
+  guides(y.sec = guide_axis_manual(labels = labels2)) +
+  scale_color_manual(values = c("Mee eens"='black', "Neutraal"='black', "Mee oneens"='black'), na.value="white", guide="none")+
+  scale_fill_brewer(palette="RdBu", breaks=rev, guide=guide_legend(reverse=TRUE), name=element_blank())+
+  theme(legend.position="bottom")
 
