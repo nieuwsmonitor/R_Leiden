@@ -253,10 +253,13 @@ t.test(value ~ gender, data = happy2)
 head(d)
 
 l = d|>
-  select(PROJECT, age, gender,literacy:peers)
+  select(PROJECT, age, gender,literacy:peers) # we selecteren even alle variabelen voor de likert scales en noemen dat l
 
 table(l$literacy, useNA = 'always')
 
+#WE willen alle variabelen hernoemen en dan kun je ze allemaal met case_when opnieuw gaan mutaten, maar dat kan efficienter in een functie
+#hieronder de functie die dat doet. We maken van een variabele x een factor en hernoemen de getallen tot waardes van een factor.
+#op deze manier houden we ook direct de juiste volgorde aan
 likert_recode <- function(x) {
   y <- case_when(is.na(x) ~ NA,
                  x == 1 ~ "Strongly disagree",
@@ -268,7 +271,8 @@ likert_recode <- function(x) {
   return(y)
 }
 
-
+#hieronder dezelfde code alleen hoef je tegenwoordig niet meer eerst y te maken en dan te returnen.
+#dat gebeurt direct....
 likert_recode <- function(x) {
   case_match(x, 
                   1 ~ "Strongly disagree",
@@ -279,6 +283,8 @@ likert_recode <- function(x) {
   factor(levels = c("Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"))
 }
 
+#En hieronder een nog efficientere manier van schrijven omdat je nu niet twee keer de verschillende levels hoeft aan te geven.
+#R weet dat als je de levens meegeeft dat die van klein naar groot loopt en koppelt automatisch 1 aan strongly disagree etc.
 
 likert_recode <- function(x, levels=c("Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree")) {
   factor(levels[x], levels)
@@ -340,11 +346,11 @@ guide_train.guide_axis_trans <- function(x, ...) {
   guide
 }
 
+####Hieronder de oplossing zoals hierboven maar dan VEEL makkelijker.
+#Met dank aan Nienke die dit package heeft gevonden. Zie : https://cran.rstudio.com/web/packages/ggh4x/ggh4x.pdf
 
 library(ggh4x)
 
-labels1 <- c("Verveeld", "Ontevreden","Ongelukkig", "Hopeloos")
-labels2 <- c("Ontspannen","Tevreden","Gelukkig","Hoopvol")
 
 l2 |>
   ggplot(aes(y = label, x=perc, fill=value, label=round(perc, 1)))+
@@ -360,17 +366,32 @@ l2 |>
   theme(legend.position="bottom")
 
 
+###Hieronder zetten we het geheel op de goede volgorde
+#PAS OP! Je moet wel zorgen voor de goede variabele naam!
+#We hebben de twee y-assen handmatig hernoemd, maar dat betekent niet dat die namen ook de namen zijn van de variabele!
+#dat heb ik hier onder aangepast. Variabele namen zijn attitude:peers zie hieronder
+
+volgorde = c("attitude","activity","literacy","peers")
+volgorde2 = c("peers", "literacy","activity","attitude")
+
+#de labels heb ik ook even aangepast aan de correcte variabele...
+
+labels1 <- c("Geen interesse", "Ik doe weinig","Ik ben niet op de hoogte", "Ik praat nooit met omgeving")
+labels2 <- c("Veel interesse","Ik doe veel","Ik ben heel erg op de hoogte","Ik praat veel met omgeving")
+
+#Hieronder de volgorde en met de reverse=FALSE of reverse=TRUE kun je ze nog omdraaien.
 
 l2 |>
-  ggplot(aes(y = variable, x=perc, fill=value, label=round(perc, 1)))+
-  geom_col(position=position_stack(reverse=TRUE))+
-  geom_text(data = filter(l2, perc>5),aes(color=value), position=position_stack(vjust=.5, reverse = TRUE), size=3) +
+  ggplot(aes(y = fct_reorder(variabele, match(variabele, volgorde)), x=perc, fill=value, label=round(perc, 1)))+
+  geom_col(position=position_stack(reverse=FALSE))+
+  geom_text(data = filter(l2, perc>5),aes(color=value), position=position_stack(vjust=.5, reverse = FALSE), size=3) +
   ggtitle("Emotionele herinnering", subtitle="Hoe voel je je nadat je iets hebt gedaan met [PROJECT]?")+
   ylab("")+
   xlab("Percentage")+
   scale_y_discrete(labels = labels1)+
+  scale_color_manual(values = c("Agree"='black', "Neutral"='black', "Disagree"='black'), na.value="white", guide="none")+
+  scale_fill_brewer(palette="PRGn", breaks=rev, guide=guide_legend(reverse=FALSE), name=element_blank())+
   guides(y.sec = guide_axis_manual(labels = labels2)) +
-  scale_color_manual(values = c("Mee eens"='black', "Neutraal"='black', "Mee oneens"='black'), na.value="white", guide="none")+
-  scale_fill_brewer(palette="RdBu", breaks=rev, guide=guide_legend(reverse=TRUE), name=element_blank())+
   theme(legend.position="bottom")
+
 
